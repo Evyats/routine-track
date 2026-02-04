@@ -1,0 +1,6 @@
+
+Study Stopwatch - i want this to be inside a big circle, not regular box like it is currently is.
+
+start pause and reset buttons - i want icopns instead of text.
+
+i want to have button for toggle mode - light (current) and dark.

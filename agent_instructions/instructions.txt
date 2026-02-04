@@ -1,0 +1,12 @@
+that is a template and therefore include some "example" stuff. i like the general styling of it so i wanna build on top of it. 
+
+i want to build a very minimal app of a daily routine tracker. every day i want to make the following 4:
+Read high-quality existing GitHub code (20 min)
+Use a new AI tool (30 min)
+Generate 3 chatgpt programming questions
+Commit changes to codebase and send to github
+
+i want to have a checklist with these 4.
+near the ones limited by time - i want a timer near them that can be activated, and control for pause or reset and that stuff, and when it ends i want a nice sound.
+
+also - above these 4 - i want a big stopper on the screen. i activate it when i start learning and pausing it sometimes, and it is for me to see at the end of the day how much time i spent actually studying.
