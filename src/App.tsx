@@ -1,4 +1,5 @@
 import * as React from "react";
+import { ComponentExample } from "@/components/component-example";
 
 type RoutineTask = {
   id: string;
@@ -163,13 +164,14 @@ function useStopwatch() {
 export function App() {
   const [checked, setChecked] = React.useState<Record<string, boolean>>({});
   const stopwatch = useStopwatch();
-  const [isDark, setIsDark] = React.useState(false);
+  const [isDark, setIsDark] = React.useState(true);
+  const [showExample, setShowExample] = React.useState(false);
 
   const handleToggle = React.useCallback((taskId: string) => {
     setChecked((prev) => ({ ...prev, [taskId]: !prev[taskId] }));
   }, []);
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const root = document.documentElement;
     if (isDark) {
       root.classList.add("dark");
@@ -177,6 +179,16 @@ export function App() {
       root.classList.remove("dark");
     }
   }, [isDark]);
+
+  if (showExample) {
+    return (
+      <main className="min-h-screen bg-background text-foreground">
+        <div className="mx-auto w-full max-w-5xl px-4 py-10">
+          <ComponentExample />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-background px-4 py-10 text-foreground">
@@ -197,6 +209,13 @@ export function App() {
               </div>
               <button
                 type="button"
+                onClick={() => setShowExample(true)}
+                className="rounded-full border border-border px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground transition hover:text-foreground"
+              >
+                Example
+              </button>
+              <button
+                type="button"
                 onClick={() => setIsDark((prev) => !prev)}
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-border/70 bg-card/80 text-foreground/80 transition hover:bg-card"
                 aria-label="Toggle dark mode"
@@ -208,35 +227,37 @@ export function App() {
           </div>
         </header>
 
-        <section className="rounded-[2.5rem] border border-border/70 bg-card p-8 text-card-foreground shadow-[0_30px_80px_-50px_rgba(15,23,42,0.25)]">
-          <div className="flex flex-col gap-6">
-            <div>
-              <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">
-                Study Stopwatch
-              </p>
-              <h2 className="mt-2 text-5xl font-semibold tracking-tight text-foreground sm:text-6xl">
-                {formatClock(stopwatch.elapsedMs, true)}
-              </h2>
-              <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-                Start this when you begin your learning session. Pause when you
-                step away. Reset at the end of the day to see your true focused
-                time.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
+        <section className="flex items-center justify-center">
+          <div className="flex h-[22rem] w-[22rem] flex-col items-center justify-center rounded-full border border-border/70 bg-card p-8 text-center text-card-foreground shadow-[0_30px_80px_-50px_rgba(15,23,42,0.25)] sm:h-[26rem] sm:w-[26rem]">
+            <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">
+              Study Stopwatch
+            </p>
+            <h2 className="mt-3 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+              {formatClock(stopwatch.elapsedMs, true)}
+            </h2>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Start this when you begin your learning session. Pause when you
+              step away. Reset at the end of the day to see your true focused
+              time.
+            </p>
+            <div className="mt-4 flex items-center gap-3">
               <button
                 type="button"
                 onClick={stopwatch.running ? stopwatch.pause : stopwatch.start}
-                className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground transition hover:bg-primary/90"
+                aria-label={stopwatch.running ? "Pause" : "Start"}
+                title={stopwatch.running ? "Pause" : "Start"}
               >
-                {stopwatch.running ? "Pause" : "Start"}
+                {stopwatch.running ? <PauseIcon /> : <PlayIcon />}
               </button>
               <button
                 type="button"
                 onClick={stopwatch.reset}
-                className="rounded-full border border-border px-6 py-2 text-sm font-semibold text-muted-foreground transition hover:text-foreground"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-muted-foreground transition hover:text-foreground"
+                aria-label="Reset"
+                title="Reset"
               >
-                Reset
+                <ResetIcon />
               </button>
             </div>
           </div>
@@ -327,20 +348,70 @@ function TimedTaskCard({ task, checked, onToggle }: TaskCardProps) {
           <button
             type="button"
             onClick={timer.running ? timer.pause : timer.start}
-            className="rounded-full bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground transition hover:bg-primary/90"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground transition hover:bg-primary/90"
+            aria-label={timer.running ? "Pause timer" : "Start timer"}
+            title={timer.running ? "Pause timer" : "Start timer"}
           >
-            {timer.running ? "Pause" : "Start"}
+            {timer.running ? <PauseIcon /> : <PlayIcon />}
           </button>
           <button
             type="button"
             onClick={timer.reset}
-            className="rounded-full border border-border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground transition hover:text-foreground"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition hover:text-foreground"
+            aria-label="Reset timer"
+            title="Reset timer"
           >
-            Reset
+            <ResetIcon />
           </button>
         </div>
       </div>
     </article>
+  );
+}
+
+function PlayIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className="h-4 w-4"
+      fill="currentColor"
+    >
+      <path d="M8 5.5a1 1 0 0 1 1.52-.86l8.5 5a1 1 0 0 1 0 1.72l-8.5 5A1 1 0 0 1 8 15.5V5.5Z" />
+    </svg>
+  );
+}
+
+function PauseIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className="h-4 w-4"
+      fill="currentColor"
+    >
+      <path d="M7.5 5.5A1.5 1.5 0 0 1 9 7v10a1.5 1.5 0 0 1-3 0V7a1.5 1.5 0 0 1 1.5-1.5Zm9 0A1.5 1.5 0 0 1 18 7v10a1.5 1.5 0 0 1-3 0V7a1.5 1.5 0 0 1 1.5-1.5Z" />
+    </svg>
+  );
+}
+
+function ResetIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M4 12a8 8 0 0 1 13.66-5.66" />
+      <path d="M18 4v5h-5" />
+      <path d="M20 12a8 8 0 0 1-13.66 5.66" />
+      <path d="M6 20v-5h5" />
+    </svg>
   );
 }
 function SunIcon() {
