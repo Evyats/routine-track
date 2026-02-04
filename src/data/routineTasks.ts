@@ -23,4 +23,9 @@ export const routineTasks: RoutineTask[] = [
     id: "commit-github",
     label: "Commit changes to codebase and push to GitHub",
   },
+  // {
+  //   id: "timer-tester",
+  //   label: "Test timer for 3 seconds, auto-tick, sound",
+  //   durationSeconds: 3,
+  // },
 ];

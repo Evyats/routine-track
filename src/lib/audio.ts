@@ -25,3 +25,14 @@ export function playChime() {
     // Silent fail if audio context isn't available.
   }
 }
+
+export function playChimeSequence(count = 3, gapMs = 250) {
+  if (count <= 0) {
+    return;
+  }
+  for (let index = 0; index < count; index += 1) {
+    window.setTimeout(() => {
+      playChime();
+    }, index * gapMs);
+  }
+}

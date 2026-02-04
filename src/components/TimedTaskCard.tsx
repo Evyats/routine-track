@@ -2,7 +2,7 @@ import { IconPlayerPauseFilled, IconPlayerPlayFilled, IconRefresh } from "@table
 import { TaskCardShell } from "@/components/TaskCardShell";
 import type { RoutineTask } from "@/data/routineTasks";
 import { useCountdown } from "@/hooks/useCountdown";
-import { playChime } from "@/lib/audio";
+import { playChimeSequence } from "@/lib/audio";
 import { formatClock } from "@/lib/time";
 
 type TimedTaskCardProps = {
@@ -19,7 +19,7 @@ export function TimedTaskCard({
   onComplete,
 }: TimedTaskCardProps) {
   const timer = useCountdown(task.durationSeconds ?? 0, () => {
-    playChime();
+    playChimeSequence(5, 1000);
     onComplete(task.id);
   });
 
