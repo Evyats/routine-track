@@ -13,6 +13,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
 
 type RoutineTask = {
   id: string;
@@ -62,6 +63,12 @@ function formatDateLabel(date = new Date()) {
   const year = date.getFullYear();
 
   return `${dayName} | ${day}.${month}.${year}`;
+}
+
+function getMinuteProgress(elapsedMs: number) {
+  const totalSeconds = Math.max(0, Math.floor(elapsedMs / 1000));
+  const minuteSeconds = totalSeconds % 60;
+  return (minuteSeconds / 60) * 100;
 }
 
 function playChime() {
@@ -340,6 +347,10 @@ export function App() {
                   <h2 className="mt-3 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
                     {formatClock(stopwatch.elapsedMs, true)}
                   </h2>
+                  <Progress
+                    value={getMinuteProgress(stopwatch.elapsedMs)}
+                    className="mt-3 w-full max-w-xs"
+                  />
                   <p className="mt-3 text-sm text-muted-foreground">
                     Start this when you begin your learning session. Pause when
                     you step away. Reset at the end of the day to see your true
