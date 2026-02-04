@@ -18,7 +18,7 @@ import { Progress } from "@/components/ui/progress";
 import { routineTasks } from "@/data/routineTasks";
 import { useStopwatch } from "@/hooks/useStopwatch";
 import { formatDateLabel } from "@/lib/date";
-import { formatClock, formatStopwatchDisplay, getMinuteProgress } from "@/lib/time";
+import { formatStopwatchDisplay, getMinuteProgress } from "@/lib/time";
 import {
   IconMoonFilled,
   IconPencil,
