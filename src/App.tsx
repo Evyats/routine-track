@@ -281,36 +281,26 @@ export function App() {
         element={
           <main className="min-h-screen bg-muted px-4 py-10 text-foreground dark:bg-background">
             <div className="mx-auto flex w-full max-w-2xl flex-col gap-8">
-              <header className="rounded-2xl border border-border/70 bg-card/95 p-6 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.5)] backdrop-blur dark:bg-card/80">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                      Daily Routine
-                    </p>
-                    <h1 className="text-3xl font-semibold text-foreground">
-                      Focus Tracker
-                    </h1>
+              <header className="flex items-center justify-center">
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  <Link
+                    to="/example"
+                    className="rounded-md border border-border bg-card px-3 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground transition hover:text-foreground"
+                  >
+                    Example
+                  </Link>
+                  <div className="rounded-md border border-border bg-primary px-3 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-primary-foreground">
+                    {formatDateLabel()}
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-md border border-border bg-primary px-3 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-primary-foreground">
-                      {formatDateLabel()}
-                    </div>
-                    <Link
-                      to="/example"
-                      className="rounded-md border border-border bg-card px-3 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground transition hover:text-foreground"
-                    >
-                      Example
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => setIsDark((prev) => !prev)}
-                      className="grid h-10 w-10 place-items-center rounded-full border border-border/70 bg-card/80 text-foreground/80 transition hover:bg-primary/10 hover:text-foreground dark:bg-card/70"
-                      aria-label="Toggle dark mode"
-                      title="Toggle dark mode"
-                    >
-                      {isDark ? <SunIcon /> : <MoonIcon />}
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsDark((prev) => !prev)}
+                    className="grid h-10 w-10 place-items-center rounded-full border border-border/70 bg-card/80 text-foreground/80 transition hover:bg-primary/10 hover:text-foreground dark:bg-card/70"
+                    aria-label="Toggle dark mode"
+                    title="Toggle dark mode"
+                  >
+                    {isDark ? <SunIcon /> : <MoonIcon />}
+                  </button>
                 </div>
               </header>
 
@@ -437,9 +427,6 @@ export function App() {
                     </AlertDialog>
                     <button
                       type="button"
-                      onClick={
-                        stopwatch.running ? stopwatch.pause : stopwatch.start
-                      }
                       className="grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground transition hover:bg-primary/90"
                       aria-label={stopwatch.running ? "Pause" : "Start"}
                       title={stopwatch.running ? "Pause" : "Start"}
