@@ -9,7 +9,7 @@ Tech stack:
 - Tailwind CSS
 - shadcn/ui
 
-Hosted at: <YOUR_DOMAIN_HERE>
+Hosted at: <https://routine-track-alpha.vercel.app/>
 
 ## Run Locally
 ```bash
