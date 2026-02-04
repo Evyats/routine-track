@@ -1,6 +1,18 @@
 import * as React from "react";
 import { Link, Route, Routes } from "react-router-dom";
 import { ComponentExample } from "@/components/component-example";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type RoutineTask = {
   id: string;
@@ -186,6 +198,7 @@ export function App() {
   const [checked, setChecked] = React.useState<Record<string, boolean>>({});
   const stopwatch = useStopwatch();
   const [isDark, setIsDark] = React.useState(true);
+  const [editHours, setEditHours] = React.useState(0);
   const [editMinutes, setEditMinutes] = React.useState(0);
   const [editSeconds, setEditSeconds] = React.useState(0);
   const [rippleKey, setRippleKey] = React.useState(0);
@@ -194,6 +207,7 @@ export function App() {
     top: number;
     size: number;
   } | null>(null);
+  const [isEditOpen, setIsEditOpen] = React.useState(false);
 
   const handleToggle = React.useCallback((taskId: string) => {
     setChecked((prev) => ({ ...prev, [taskId]: !prev[taskId] }));
@@ -213,12 +227,16 @@ export function App() {
       return;
     }
     const totalSeconds = Math.floor(stopwatch.elapsedMs / 1000);
-    setEditMinutes(Math.floor(totalSeconds / 60));
+    setEditHours(Math.floor(totalSeconds / 3600));
+    setEditMinutes(Math.floor((totalSeconds % 3600) / 60));
     setEditSeconds(totalSeconds % 60);
   }, [stopwatch.elapsedMs, stopwatch.running]);
 
   const handleCircleClick = React.useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
+      if (isEditOpen) {
+        return;
+      }
       const rect = event.currentTarget.getBoundingClientRect();
       const size = Math.max(rect.width, rect.height) * 2;
       const left = event.clientX - rect.left - size / 2;
@@ -231,19 +249,23 @@ export function App() {
         stopwatch.start();
       }
     },
-    [stopwatch],
+    [isEditOpen, stopwatch],
   );
 
   const handleSetTime = React.useCallback(() => {
     if (stopwatch.running) {
       return;
     }
+    const hours = Number.isFinite(editHours) ? editHours : 0;
     const minutes = Number.isFinite(editMinutes) ? editMinutes : 0;
     const seconds = Number.isFinite(editSeconds) ? editSeconds : 0;
     const clampedSeconds = Math.min(59, Math.max(0, Math.floor(seconds)));
     const clampedMinutes = Math.max(0, Math.floor(minutes));
-    stopwatch.setTime((clampedMinutes * 60 + clampedSeconds) * 1000);
-  }, [editMinutes, editSeconds, stopwatch]);
+    const clampedHours = Math.max(0, Math.floor(hours));
+    stopwatch.setTime(
+      (clampedHours * 3600 + clampedMinutes * 60 + clampedSeconds) * 1000,
+    );
+  }, [editHours, editMinutes, editSeconds, stopwatch]);
 
   return (
     <Routes>
@@ -323,48 +345,85 @@ export function App() {
                     you step away. Reset at the end of the day to see your true
                     focused time.
                   </p>
-                  <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-                    <input
-                      type="number"
-                      min={0}
-                      value={editMinutes}
-                      onChange={(event) =>
-                        setEditMinutes(Number(event.target.value))
-                      }
-                      onClick={(event) => event.stopPropagation()}
-                      onFocus={(event) => event.stopPropagation()}
-                      disabled={stopwatch.running}
-                      className="w-16 rounded-md border border-border bg-background px-2 py-1 text-center text-foreground disabled:cursor-not-allowed disabled:opacity-60"
-                      aria-label="Minutes"
-                    />
-                    <span>:</span>
-                    <input
-                      type="number"
-                      min={0}
-                      max={59}
-                      value={editSeconds}
-                      onChange={(event) =>
-                        setEditSeconds(Number(event.target.value))
-                      }
-                      onClick={(event) => event.stopPropagation()}
-                      onFocus={(event) => event.stopPropagation()}
-                      disabled={stopwatch.running}
-                      className="w-16 rounded-md border border-border bg-background px-2 py-1 text-center text-foreground disabled:cursor-not-allowed disabled:opacity-60"
-                      aria-label="Seconds"
-                    />
-                    <button
-                      type="button"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        handleSetTime();
-                      }}
-                      disabled={stopwatch.running}
-                      className="rounded-md border border-border px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground transition hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      Set
-                    </button>
-                  </div>
                   <div className="mt-4 flex items-center gap-3">
+                    <AlertDialog
+                      open={isEditOpen}
+                      onOpenChange={setIsEditOpen}
+                    >
+                      <AlertDialogTrigger asChild>
+                        <button
+                          type="button"
+                          className="grid h-10 w-10 place-items-center rounded-full border border-border text-muted-foreground transition hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                          aria-label="Edit time"
+                          title="Edit time"
+                          disabled={stopwatch.running}
+                          onMouseDown={(event) => event.stopPropagation()}
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          <EditIcon />
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Set Stopwatch Time</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Enter minutes and seconds. This is only available
+                            while paused.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <div className="mt-3 flex items-center gap-3">
+                          <input
+                            type="number"
+                            min={0}
+                            value={editHours}
+                            onChange={(event) =>
+                              setEditHours(Number(event.target.value))
+                            }
+                            disabled={stopwatch.running}
+                            className="w-24 rounded-md border border-border bg-background px-3 py-2 text-center text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                            aria-label="Hours"
+                          />
+                          <span className="text-muted-foreground">:</span>
+                          <input
+                            type="number"
+                            min={0}
+                            value={editMinutes}
+                            onChange={(event) =>
+                              setEditMinutes(Number(event.target.value))
+                            }
+                            disabled={stopwatch.running}
+                            className="w-24 rounded-md border border-border bg-background px-3 py-2 text-center text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                            aria-label="Minutes"
+                          />
+                          <span className="text-muted-foreground">:</span>
+                          <input
+                            type="number"
+                            min={0}
+                            max={59}
+                            value={editSeconds}
+                            onChange={(event) =>
+                              setEditSeconds(Number(event.target.value))
+                            }
+                            disabled={stopwatch.running}
+                            className="w-24 rounded-md border border-border bg-background px-3 py-2 text-center text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                            aria-label="Seconds"
+                          />
+                        </div>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleSetTime();
+                              setIsEditOpen(false);
+                            }}
+                            disabled={stopwatch.running}
+                          >
+                            Set Time
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                     <button
                       type="button"
                       onClick={
@@ -374,12 +433,19 @@ export function App() {
                       aria-label={stopwatch.running ? "Pause" : "Start"}
                       title={stopwatch.running ? "Pause" : "Start"}
                       onMouseDown={(event) => event.stopPropagation()}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        stopwatch.running ? stopwatch.pause() : stopwatch.start();
+                      }}
                     >
                       {stopwatch.running ? <PauseIcon /> : <PlayIcon />}
                     </button>
                     <button
                       type="button"
-                      onClick={stopwatch.reset}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        stopwatch.reset();
+                      }}
                       className="grid h-10 w-10 place-items-center rounded-full border border-border text-muted-foreground transition hover:text-foreground"
                       aria-label="Reset"
                       title="Reset"
@@ -456,11 +522,9 @@ function TaskCard({ task, checked, onToggle }: TaskCardProps) {
     <article className="rounded-2xl border border-border/70 bg-card/95 p-5 shadow-[0_15px_40px_-35px_rgba(15,23,42,0.35)] backdrop-blur dark:bg-card/80">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <label className="flex items-center gap-3 text-base font-medium text-foreground">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={checked}
-            onChange={() => onToggle(task.id)}
-            className="h-5 w-5 rounded border-border text-primary focus:ring-primary/40"
+            onCheckedChange={() => onToggle(task.id)}
           />
           <span>{task.label}</span>
         </label>
@@ -488,11 +552,9 @@ function TimedTaskCard({
     <article className="rounded-2xl border border-border/70 bg-card/95 p-5 shadow-[0_15px_40px_-35px_rgba(15,23,42,0.35)] backdrop-blur dark:bg-card/80">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <label className="flex items-center gap-3 text-base font-medium text-foreground">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={checked}
-            onChange={() => onToggle(task.id)}
-            className="h-5 w-5 rounded border-border text-primary focus:ring-primary/40"
+            onCheckedChange={() => onToggle(task.id)}
           />
           <span>{task.label}</span>
         </label>
@@ -567,6 +629,24 @@ function ResetIcon() {
       <path d="M18 4v5h-5" />
       <path d="M20 12a8 8 0 0 1-13.66 5.66" />
       <path d="M6 20v-5h5" />
+    </svg>
+  );
+}
+
+function EditIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
     </svg>
   );
 }
