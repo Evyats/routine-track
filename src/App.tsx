@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Link, Route, Routes } from "react-router-dom";
 import { ComponentExample } from "@/components/component-example";
 
 type RoutineTask = {
@@ -39,6 +40,16 @@ function formatClock(totalMs: number, padHours = false) {
   const ss = String(seconds).padStart(2, "0");
 
   return hours > 0 || padHours ? `${hh}:${mm}:${ss}` : `${mm}:${ss}`;
+}
+
+function formatDateLabel(date = new Date()) {
+  const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+  const dayName = dayNames[date.getDay()];
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+
+  return `${dayName} | ${day}.${month}.${year}`;
 }
 
 function playChime() {
@@ -165,7 +176,6 @@ export function App() {
   const [checked, setChecked] = React.useState<Record<string, boolean>>({});
   const stopwatch = useStopwatch();
   const [isDark, setIsDark] = React.useState(true);
-  const [showExample, setShowExample] = React.useState(false);
 
   const handleToggle = React.useCallback((taskId: string) => {
     setChecked((prev) => ({ ...prev, [taskId]: !prev[taskId] }));
@@ -180,122 +190,130 @@ export function App() {
     }
   }, [isDark]);
 
-  if (showExample) {
-    return (
-      <main className="min-h-screen bg-background text-foreground">
-        <div className="mx-auto w-full max-w-5xl px-4 py-10">
-          <ComponentExample />
-        </div>
-      </main>
-    );
-  }
-
   return (
-    <main className="min-h-screen bg-background px-4 py-10 text-foreground">
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-8">
-        <header className="rounded-3xl border border-border/70 bg-card/80 p-6 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.5)] backdrop-blur">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                Daily Routine
-              </p>
-              <h1 className="text-3xl font-semibold text-foreground">
-                Focus Tracker
-              </h1>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="rounded-full bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-primary-foreground">
-                Today
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowExample(true)}
-                className="rounded-full border border-border px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground transition hover:text-foreground"
-              >
-                Example
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsDark((prev) => !prev)}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-border/70 bg-card/80 text-foreground/80 transition hover:bg-card"
-                aria-label="Toggle dark mode"
-                title="Toggle dark mode"
-              >
-                {isDark ? <SunIcon /> : <MoonIcon />}
-              </button>
-            </div>
-          </div>
-        </header>
+    <Routes>
+      <Route
+        path="/"
+        element={
+          <main className="min-h-screen bg-muted px-4 py-10 text-foreground dark:bg-background">
+            <div className="mx-auto flex w-full max-w-2xl flex-col gap-8">
+              <header className="rounded-2xl border border-border/70 bg-card/95 p-6 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.5)] backdrop-blur dark:bg-card/80">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                      Daily Routine
+                    </p>
+                    <h1 className="text-3xl font-semibold text-foreground">
+                      Focus Tracker
+                    </h1>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-md border border-border bg-primary px-3 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-primary-foreground">
+                      {formatDateLabel()}
+                    </div>
+                    <Link
+                      to="/example"
+                      className="rounded-md border border-border bg-card px-3 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground transition hover:text-foreground"
+                    >
+                      Example
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => setIsDark((prev) => !prev)}
+                      className="grid h-10 w-10 place-items-center rounded-full border border-border/70 bg-card/80 text-foreground/80 transition hover:bg-primary/10 hover:text-foreground dark:bg-card/70"
+                      aria-label="Toggle dark mode"
+                      title="Toggle dark mode"
+                    >
+                      {isDark ? <SunIcon /> : <MoonIcon />}
+                    </button>
+                  </div>
+                </div>
+              </header>
 
-        <section className="flex items-center justify-center">
-          <div className="flex h-[22rem] w-[22rem] flex-col items-center justify-center rounded-full border border-border/70 bg-card p-8 text-center text-card-foreground shadow-[0_30px_80px_-50px_rgba(15,23,42,0.25)] sm:h-[26rem] sm:w-[26rem]">
-            <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">
-              Study Stopwatch
-            </p>
-            <h2 className="mt-3 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-              {formatClock(stopwatch.elapsedMs, true)}
-            </h2>
-            <p className="mt-3 text-sm text-muted-foreground">
-              Start this when you begin your learning session. Pause when you
-              step away. Reset at the end of the day to see your true focused
-              time.
-            </p>
-            <div className="mt-4 flex items-center gap-3">
-              <button
-                type="button"
-                onClick={stopwatch.running ? stopwatch.pause : stopwatch.start}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground transition hover:bg-primary/90"
-                aria-label={stopwatch.running ? "Pause" : "Start"}
-                title={stopwatch.running ? "Pause" : "Start"}
-              >
-                {stopwatch.running ? <PauseIcon /> : <PlayIcon />}
-              </button>
-              <button
-                type="button"
-                onClick={stopwatch.reset}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-muted-foreground transition hover:text-foreground"
-                aria-label="Reset"
-                title="Reset"
-              >
-                <ResetIcon />
-              </button>
+              <section className="flex items-center justify-center">
+                <div className="flex h-[22rem] w-[22rem] flex-col items-center justify-center rounded-full border border-border/70 bg-card/95 p-8 text-center text-card-foreground shadow-[0_30px_80px_-50px_rgba(15,23,42,0.25)] dark:bg-card sm:h-[26rem] sm:w-[26rem]">
+                  <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">
+                    Study Stopwatch
+                  </p>
+                  <h2 className="mt-3 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+                    {formatClock(stopwatch.elapsedMs, true)}
+                  </h2>
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    Start this when you begin your learning session. Pause when
+                    you step away. Reset at the end of the day to see your true
+                    focused time.
+                  </p>
+                  <div className="mt-4 flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={
+                        stopwatch.running ? stopwatch.pause : stopwatch.start
+                      }
+                      className="grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground transition hover:bg-primary/90"
+                      aria-label={stopwatch.running ? "Pause" : "Start"}
+                      title={stopwatch.running ? "Pause" : "Start"}
+                    >
+                      {stopwatch.running ? <PauseIcon /> : <PlayIcon />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={stopwatch.reset}
+                      className="grid h-10 w-10 place-items-center rounded-full border border-border text-muted-foreground transition hover:text-foreground"
+                      aria-label="Reset"
+                      title="Reset"
+                    >
+                      <ResetIcon />
+                    </button>
+                  </div>
+                </div>
+              </section>
+
+              <section className="grid gap-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-foreground">
+                    Today&apos;s Checklist
+                  </h2>
+                  <span className="text-sm text-muted-foreground">
+                    {Object.values(checked).filter(Boolean).length} /{" "}
+                    {routineTasks.length} complete
+                  </span>
+                </div>
+
+                <div className="grid gap-4">
+                  {routineTasks.map((task) =>
+                    typeof task.durationSeconds === "number" ? (
+                      <TimedTaskCard
+                        key={task.id}
+                        task={task}
+                        checked={checked[task.id] ?? false}
+                        onToggle={handleToggle}
+                      />
+                    ) : (
+                      <TaskCard
+                        key={task.id}
+                        task={task}
+                        checked={checked[task.id] ?? false}
+                        onToggle={handleToggle}
+                      />
+                    ),
+                  )}
+                </div>
+              </section>
             </div>
-          </div>
-        </section>
-
-        <section className="grid gap-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-foreground">
-              Today&apos;s Checklist
-            </h2>
-            <span className="text-sm text-muted-foreground">
-              {Object.values(checked).filter(Boolean).length} /{" "}
-              {routineTasks.length} complete
-            </span>
-          </div>
-
-          <div className="grid gap-4">
-            {routineTasks.map((task) =>
-              typeof task.durationSeconds === "number" ? (
-                <TimedTaskCard
-                  key={task.id}
-                  task={task}
-                  checked={checked[task.id] ?? false}
-                  onToggle={handleToggle}
-                />
-              ) : (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  checked={checked[task.id] ?? false}
-                  onToggle={handleToggle}
-                />
-              ),
-            )}
-          </div>
-        </section>
-      </div>
-    </main>
+          </main>
+        }
+      />
+      <Route
+        path="/example"
+        element={
+          <main className="min-h-screen bg-background text-foreground">
+            <div className="mx-auto w-full max-w-5xl px-4 py-10">
+              <ComponentExample />
+            </div>
+          </main>
+        }
+      />
+    </Routes>
   );
 }
 
@@ -309,7 +327,7 @@ type TaskCardProps = {
 
 function TaskCard({ task, checked, onToggle }: TaskCardProps) {
   return (
-    <article className="rounded-2xl border border-border/70 bg-card/80 p-5 shadow-[0_15px_40px_-35px_rgba(15,23,42,0.35)] backdrop-blur">
+    <article className="rounded-2xl border border-border/70 bg-card/95 p-5 shadow-[0_15px_40px_-35px_rgba(15,23,42,0.35)] backdrop-blur dark:bg-card/80">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <label className="flex items-center gap-3 text-base font-medium text-foreground">
           <input
@@ -329,7 +347,7 @@ function TimedTaskCard({ task, checked, onToggle }: TaskCardProps) {
   const timer = useCountdown(task.durationSeconds ?? 0, playChime);
 
   return (
-    <article className="rounded-2xl border border-border/70 bg-card/80 p-5 shadow-[0_15px_40px_-35px_rgba(15,23,42,0.35)] backdrop-blur">
+    <article className="rounded-2xl border border-border/70 bg-card/95 p-5 shadow-[0_15px_40px_-35px_rgba(15,23,42,0.35)] backdrop-blur dark:bg-card/80">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <label className="flex items-center gap-3 text-base font-medium text-foreground">
           <input
@@ -348,7 +366,7 @@ function TimedTaskCard({ task, checked, onToggle }: TaskCardProps) {
           <button
             type="button"
             onClick={timer.running ? timer.pause : timer.start}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground transition hover:bg-primary/90"
+            className="grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground transition hover:bg-primary/90"
             aria-label={timer.running ? "Pause timer" : "Start timer"}
             title={timer.running ? "Pause timer" : "Start timer"}
           >
@@ -357,7 +375,7 @@ function TimedTaskCard({ task, checked, onToggle }: TaskCardProps) {
           <button
             type="button"
             onClick={timer.reset}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition hover:text-foreground"
+            className="grid h-9 w-9 place-items-center rounded-full border border-border text-muted-foreground transition hover:text-foreground"
             aria-label="Reset timer"
             title="Reset timer"
           >

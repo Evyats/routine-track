@@ -1,0 +1,14 @@
+
+
+
+i want this to use a router so there will be an option to go back to the homepage when pressing back in the browser after getting to the example page.
+
+"today" and "example" components should look more like the buttons in the example page (border for example is too roinded for them in our implementation).
+
+instead of "today" - write the date in format of "THU | 13.1.2025"
+
+icons inside the buttons - center them on both axis.
+
+in light mode - background of the components shouldbe brighter so it has contrast from the main bg.
+
+* please stick to exactly what i am asking for, without changing anything further than that.
