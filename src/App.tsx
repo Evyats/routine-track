@@ -1,6 +1,8 @@
 import * as React from "react";
 import { Link, Route, Routes } from "react-router-dom";
 import { ComponentExample } from "@/components/component-example";
+import { TaskCard } from "@/components/TaskCard";
+import { TimedTaskCard } from "@/components/TimedTaskCard";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,8 +14,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import { routineTasks } from "@/data/routineTasks";
+import { useStopwatch } from "@/hooks/useStopwatch";
+import { formatDateLabel } from "@/lib/date";
+import { formatClock, getMinuteProgress } from "@/lib/time";
 import {
   IconMoonFilled,
   IconPencil,
@@ -22,192 +27,6 @@ import {
   IconRefresh,
   IconSunFilled,
 } from "@tabler/icons-react";
-
-type RoutineTask = {
-  id: string;
-  label: string;
-  durationSeconds?: number;
-};
-
-const routineTasks: RoutineTask[] = [
-  {
-    id: "read-github",
-    label: "Read high-quality existing GitHub code",
-    durationSeconds: 20 * 60,
-  },
-  {
-    id: "new-ai-tool",
-    label: "Use a new AI tool",
-    durationSeconds: 30 * 60,
-  },
-  {
-    id: "generate-questions",
-    label: "Generate 3 ChatGPT programming questions",
-  },
-  {
-    id: "commit-github",
-    label: "Commit changes to codebase and push to GitHub",
-  },
-];
-
-function formatClock(totalMs: number, padHours = false) {
-  const totalSeconds = Math.max(0, Math.floor(totalMs / 1000));
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  const hh = padHours ? String(hours).padStart(2, "0") : String(hours);
-  const mm = String(minutes).padStart(2, "0");
-  const ss = String(seconds).padStart(2, "0");
-
-  return hours > 0 || padHours ? `${hh}:${mm}:${ss}` : `${mm}:${ss}`;
-}
-
-function formatDateLabel(date = new Date()) {
-  const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-  const dayName = dayNames[date.getDay()];
-  const day = date.getDate();
-  const month = date.getMonth() + 1;
-  const year = date.getFullYear();
-
-  return `${dayName} | ${day}.${month}.${year}`;
-}
-
-function getMinuteProgress(elapsedMs: number) {
-  const totalSeconds = Math.max(0, Math.floor(elapsedMs / 1000));
-  const minuteSeconds = totalSeconds % 60;
-  return (minuteSeconds / 60) * 100;
-}
-
-function playChime() {
-  try {
-    const context = new AudioContext();
-    const gain = context.createGain();
-    gain.gain.value = 0.0001;
-    gain.connect(context.destination);
-
-    const oscA = context.createOscillator();
-    oscA.type = "sine";
-    oscA.frequency.value = 523.25;
-    oscA.connect(gain);
-
-    const oscB = context.createOscillator();
-    oscB.type = "sine";
-    oscB.frequency.value = 659.25;
-    oscB.connect(gain);
-
-    oscA.start();
-    oscB.start();
-    gain.gain.exponentialRampToValueAtTime(0.18, context.currentTime + 0.05);
-    gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 1.8);
-    oscA.stop(context.currentTime + 1.85);
-    oscB.stop(context.currentTime + 1.85);
-  } catch {
-    // Silent fail if audio context isn't available.
-  }
-}
-
-function useCountdown(
-  totalSeconds: number,
-  onComplete?: () => void,
-) {
-  const [remainingMs, setRemainingMs] = React.useState(totalSeconds * 1000);
-  const [running, setRunning] = React.useState(false);
-  const lastTickRef = React.useRef(0);
-  const completedRef = React.useRef(false);
-
-  React.useEffect(() => {
-    if (!running) {
-      return;
-    }
-
-    lastTickRef.current = Date.now();
-    const intervalId = window.setInterval(() => {
-      const now = Date.now();
-      const delta = now - lastTickRef.current;
-      lastTickRef.current = now;
-      setRemainingMs((prev) => Math.max(0, prev - delta));
-    }, 250);
-
-    return () => window.clearInterval(intervalId);
-  }, [running]);
-
-  React.useEffect(() => {
-    if (remainingMs === 0 && running) {
-      setRunning(false);
-    }
-
-    if (remainingMs === 0 && !completedRef.current) {
-      completedRef.current = true;
-      onComplete?.();
-    }
-  }, [remainingMs, onComplete, running]);
-
-  const start = React.useCallback(() => {
-    if (remainingMs === 0) {
-      setRemainingMs(totalSeconds * 1000);
-      completedRef.current = false;
-    }
-    setRunning(true);
-  }, [remainingMs, totalSeconds]);
-
-  const pause = React.useCallback(() => setRunning(false), []);
-
-  const reset = React.useCallback(() => {
-    setRunning(false);
-    completedRef.current = false;
-    setRemainingMs(totalSeconds * 1000);
-  }, [totalSeconds]);
-
-  return {
-    remainingMs,
-    running,
-    start,
-    pause,
-    reset,
-  };
-}
-
-function useStopwatch() {
-  const [elapsedMs, setElapsedMs] = React.useState(0);
-  const [running, setRunning] = React.useState(false);
-  const lastTickRef = React.useRef(0);
-
-  React.useEffect(() => {
-    if (!running) {
-      return;
-    }
-
-    lastTickRef.current = Date.now();
-    const intervalId = window.setInterval(() => {
-      const now = Date.now();
-      const delta = now - lastTickRef.current;
-      lastTickRef.current = now;
-      setElapsedMs((prev) => prev + delta);
-    }, 250);
-
-    return () => window.clearInterval(intervalId);
-  }, [running]);
-
-  const start = React.useCallback(() => setRunning(true), []);
-  const pause = React.useCallback(() => setRunning(false), []);
-  const reset = React.useCallback(() => {
-    setRunning(false);
-    setElapsedMs(0);
-  }, []);
-  const setTime = React.useCallback((ms: number) => {
-    setElapsedMs(Math.max(0, ms));
-  }, []);
-
-  return {
-    elapsedMs,
-    running,
-    start,
-    pause,
-    reset,
-    setTime,
-  };
-}
 
 export function App() {
   const [checked, setChecked] = React.useState<Record<string, boolean>>({});
@@ -247,7 +66,15 @@ export function App() {
     setEditSeconds(totalSeconds % 60);
   }, [stopwatch.elapsedMs, stopwatch.running]);
 
-  const handleCircleClick = React.useCallback(
+  const toggleStopwatch = React.useCallback(() => {
+    if (stopwatch.running) {
+      stopwatch.pause();
+    } else {
+      stopwatch.start();
+    }
+  }, [stopwatch]);
+
+  const spawnRippleFromPointer = React.useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
       if (isEditOpen) {
         return;
@@ -258,13 +85,19 @@ export function App() {
       const top = event.clientY - rect.top - size / 2;
       setRippleStyle({ left, top, size });
       setRippleKey((prev) => prev + 1);
-      if (stopwatch.running) {
-        stopwatch.pause();
-      } else {
-        stopwatch.start();
-      }
     },
-    [isEditOpen, stopwatch],
+    [isEditOpen],
+  );
+
+  const handleCircleClick = React.useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      if (isEditOpen) {
+        return;
+      }
+      spawnRippleFromPointer(event);
+      toggleStopwatch();
+    },
+    [isEditOpen, spawnRippleFromPointer, toggleStopwatch],
   );
 
   const handleSetTime = React.useCallback(() => {
@@ -324,9 +157,9 @@ export function App() {
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
-                      handleCircleClick(
-                        event as unknown as React.MouseEvent<HTMLDivElement>,
-                      );
+                      if (!isEditOpen) {
+                        toggleStopwatch();
+                      }
                     }
                   }}
                   className="relative flex h-[22rem] w-[22rem] flex-col items-center justify-center overflow-hidden rounded-full border border-border/70 bg-card/95 p-8 text-center text-card-foreground shadow-[0_30px_80px_-50px_rgba(15,23,42,0.25)] outline-none transition focus-visible:ring-2 focus-visible:ring-primary/40 dark:bg-card sm:h-[26rem] sm:w-[26rem]"
@@ -524,83 +357,3 @@ export function App() {
 }
 
 export default App;
-
-type TaskCardProps = {
-  task: RoutineTask;
-  checked: boolean;
-  onToggle: (taskId: string) => void;
-};
-
-function TaskCard({ task, checked, onToggle }: TaskCardProps) {
-  return (
-    <article className="rounded-2xl border border-border/70 bg-card/95 p-5 shadow-[0_15px_40px_-35px_rgba(15,23,42,0.35)] backdrop-blur dark:bg-card/80">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <label className="flex items-center gap-3 text-base font-medium text-foreground">
-          <Checkbox
-            checked={checked}
-            onCheckedChange={() => onToggle(task.id)}
-          />
-          <span>{task.label}</span>
-        </label>
-      </div>
-    </article>
-  );
-}
-
-type TimedTaskCardProps = TaskCardProps & {
-  onComplete: (taskId: string) => void;
-};
-
-function TimedTaskCard({
-  task,
-  checked,
-  onToggle,
-  onComplete,
-}: TimedTaskCardProps) {
-  const timer = useCountdown(task.durationSeconds ?? 0, () => {
-    playChime();
-    onComplete(task.id);
-  });
-
-  return (
-    <article className="rounded-2xl border border-border/70 bg-card/95 p-5 shadow-[0_15px_40px_-35px_rgba(15,23,42,0.35)] backdrop-blur dark:bg-card/80">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <label className="flex items-center gap-3 text-base font-medium text-foreground">
-          <Checkbox
-            checked={checked}
-            onCheckedChange={() => onToggle(task.id)}
-          />
-          <span>{task.label}</span>
-        </label>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="rounded-full bg-muted px-4 py-2 text-sm font-semibold text-muted-foreground">
-            {formatClock(timer.remainingMs)}
-          </div>
-          <button
-            type="button"
-            onClick={timer.running ? timer.pause : timer.start}
-            className="grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground transition hover:bg-primary/90"
-            aria-label={timer.running ? "Pause timer" : "Start timer"}
-            title={timer.running ? "Pause timer" : "Start timer"}
-          >
-            {timer.running ? (
-              <IconPlayerPauseFilled className="h-4 w-4" />
-            ) : (
-              <IconPlayerPlayFilled className="h-4 w-4" />
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={timer.reset}
-            className="grid h-9 w-9 place-items-center rounded-full border border-border text-muted-foreground transition hover:text-foreground"
-            aria-label="Reset timer"
-            title="Reset timer"
-          >
-            <IconRefresh className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-    </article>
-  );
-}

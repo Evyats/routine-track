@@ -1,0 +1,15 @@
+TODO (no user-visible behavior changes)
+
+- Split App responsibilities into smaller files without changing behavior:
+  - Move routineTasks to a data module (e.g., src/data/routineTasks.ts).
+  - Move useStopwatch and useCountdown to hooks (e.g., src/hooks/useStopwatch.ts, src/hooks/useCountdown.ts).
+  - Move TaskCard and TimedTaskCard to components (e.g., src/components/TaskCard.tsx, src/components/TimedTaskCard.tsx).
+  - Keep App.tsx focused on routing and composition only.
+
+- Remove unsafe event casting in the stopwatch circle handler by separating:
+  - A pure toggle action (start/pause) and
+  - A ripple calculation function that only runs for pointer events.
+  This should preserve existing keyboard and click behavior exactly.
+
+- Deduplicate shared TaskCard layout by extracting a shared shell component or render helper,
+  while preserving markup structure and CSS classes to avoid any visual changes.
