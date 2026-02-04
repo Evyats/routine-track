@@ -14,6 +14,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import {
+  IconMoonFilled,
+  IconPencil,
+  IconPlayerPauseFilled,
+  IconPlayerPlayFilled,
+  IconRefresh,
+  IconSunFilled,
+} from "@tabler/icons-react";
 
 type RoutineTask = {
   id: string;
@@ -299,7 +307,11 @@ export function App() {
                     aria-label="Toggle dark mode"
                     title="Toggle dark mode"
                   >
-                    {isDark ? <SunIcon /> : <MoonIcon />}
+                    {isDark ? (
+                      <IconSunFilled className="h-5 w-5" />
+                    ) : (
+                      <IconMoonFilled className="h-5 w-5" />
+                    )}
                   </button>
                 </div>
               </header>
@@ -361,7 +373,7 @@ export function App() {
                           onMouseDown={(event) => event.stopPropagation()}
                           onClick={(event) => event.stopPropagation()}
                         >
-                          <EditIcon />
+                          <IconPencil className="h-4 w-4" />
                         </button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
@@ -436,7 +448,11 @@ export function App() {
                         stopwatch.running ? stopwatch.pause() : stopwatch.start();
                       }}
                     >
-                      {stopwatch.running ? <PauseIcon /> : <PlayIcon />}
+                      {stopwatch.running ? (
+                        <IconPlayerPauseFilled className="h-4 w-4" />
+                      ) : (
+                        <IconPlayerPlayFilled className="h-4 w-4" />
+                      )}
                     </button>
                     <button
                       type="button"
@@ -449,7 +465,7 @@ export function App() {
                       title="Reset"
                       onMouseDown={(event) => event.stopPropagation()}
                     >
-                      <ResetIcon />
+                      <IconRefresh className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
@@ -568,7 +584,11 @@ function TimedTaskCard({
             aria-label={timer.running ? "Pause timer" : "Start timer"}
             title={timer.running ? "Pause timer" : "Start timer"}
           >
-            {timer.running ? <PauseIcon /> : <PlayIcon />}
+            {timer.running ? (
+              <IconPlayerPauseFilled className="h-4 w-4" />
+            ) : (
+              <IconPlayerPlayFilled className="h-4 w-4" />
+            )}
           </button>
           <button
             type="button"
@@ -577,115 +597,10 @@ function TimedTaskCard({
             aria-label="Reset timer"
             title="Reset timer"
           >
-            <ResetIcon />
+            <IconRefresh className="h-4 w-4" />
           </button>
         </div>
       </div>
     </article>
-  );
-}
-
-function PlayIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      className="h-4 w-4"
-      fill="currentColor"
-    >
-      <path d="M8 5.5a1 1 0 0 1 1.52-.86l8.5 5a1 1 0 0 1 0 1.72l-8.5 5A1 1 0 0 1 8 15.5V5.5Z" />
-    </svg>
-  );
-}
-
-function PauseIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      className="h-4 w-4"
-      fill="currentColor"
-    >
-      <path d="M7.5 5.5A1.5 1.5 0 0 1 9 7v10a1.5 1.5 0 0 1-3 0V7a1.5 1.5 0 0 1 1.5-1.5Zm9 0A1.5 1.5 0 0 1 18 7v10a1.5 1.5 0 0 1-3 0V7a1.5 1.5 0 0 1 1.5-1.5Z" />
-    </svg>
-  );
-}
-
-function ResetIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      className="h-4 w-4"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M4 12a8 8 0 0 1 13.66-5.66" />
-      <path d="M18 4v5h-5" />
-      <path d="M20 12a8 8 0 0 1-13.66 5.66" />
-      <path d="M6 20v-5h5" />
-    </svg>
-  );
-}
-
-function EditIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      className="h-4 w-4"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 20h9" />
-      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
-    </svg>
-  );
-}
-function SunIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      className="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.8}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 3v2" />
-      <path d="M12 19v2" />
-      <path d="M4.2 6.2l1.4 1.4" />
-      <path d="M18.4 18.4l1.4 1.4" />
-      <path d="M3 12h2" />
-      <path d="M19 12h2" />
-      <path d="M4.2 17.8l1.4-1.4" />
-      <path d="M18.4 5.6l1.4-1.4" />
-    </svg>
-  );
-}
-
-function MoonIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      className="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.8}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5Z" />
-    </svg>
   );
 }
