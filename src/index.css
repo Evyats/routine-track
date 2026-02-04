@@ -145,6 +145,6 @@
   background: currentColor;
   opacity: 1;
   transform: scale(0);
-  animation: ripple 600ms ease-out;
+  animation: ripple 500ms ease-out;
   pointer-events: none;
 }
