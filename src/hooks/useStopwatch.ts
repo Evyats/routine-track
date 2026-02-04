@@ -4,21 +4,30 @@ export function useStopwatch() {
   const [elapsedMs, setElapsedMs] = React.useState(0);
   const [running, setRunning] = React.useState(false);
   const lastTickRef = React.useRef(0);
+  const rafRef = React.useRef<number | null>(null);
 
   React.useEffect(() => {
     if (!running) {
       return;
     }
 
-    lastTickRef.current = Date.now();
-    const intervalId = window.setInterval(() => {
-      const now = Date.now();
+    lastTickRef.current = performance.now();
+
+    const tick = (now: number) => {
       const delta = now - lastTickRef.current;
       lastTickRef.current = now;
       setElapsedMs((prev) => prev + delta);
-    }, 250);
+      rafRef.current = window.requestAnimationFrame(tick);
+    };
 
-    return () => window.clearInterval(intervalId);
+    rafRef.current = window.requestAnimationFrame(tick);
+
+    return () => {
+      if (rafRef.current !== null) {
+        window.cancelAnimationFrame(rafRef.current);
+      }
+      rafRef.current = null;
+    };
   }, [running]);
 
   const start = React.useCallback(() => setRunning(true), []);

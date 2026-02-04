@@ -18,7 +18,7 @@ import { Progress } from "@/components/ui/progress";
 import { routineTasks } from "@/data/routineTasks";
 import { useStopwatch } from "@/hooks/useStopwatch";
 import { formatDateLabel } from "@/lib/date";
-import { formatClock, getMinuteProgress } from "@/lib/time";
+import { formatClock, formatStopwatchDisplay, getMinuteProgress } from "@/lib/time";
 import {
   IconMoonFilled,
   IconPencil,
@@ -42,6 +42,7 @@ export function App() {
     size: number;
   } | null>(null);
   const [isEditOpen, setIsEditOpen] = React.useState(false);
+  const stopwatchDisplay = formatStopwatchDisplay(stopwatch.elapsedMs, true);
 
   const handleToggle = React.useCallback((taskId: string) => {
     setChecked((prev) => ({ ...prev, [taskId]: !prev[taskId] }));
@@ -179,9 +180,14 @@ export function App() {
                   <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">
                     Study Stopwatch
                   </p>
-                  <h2 className="mt-3 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-                    {formatClock(stopwatch.elapsedMs, true)}
-                  </h2>
+                  <div className="mt-3 flex items-center justify-center gap-2">
+                    <span className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+                      {stopwatchDisplay.main}
+                    </span>
+                    <span className="text-sm font-semibold text-muted-foreground/70 sm:text-base">
+                      {stopwatchDisplay.hundredths}
+                    </span>
+                  </div>
                   <Progress
                     value={getMinuteProgress(stopwatch.elapsedMs)}
                     className="mt-3 w-full max-w-xs"
@@ -191,7 +197,7 @@ export function App() {
                     you step away. Reset at the end of the day to see your true
                     focused time.
                   </p>
-                  <div className="mt-4 flex items-center gap-3">
+                  <div className="mt-4 flex items-start gap-3">
                     <AlertDialog
                       open={isEditOpen}
                       onOpenChange={setIsEditOpen}
@@ -272,7 +278,7 @@ export function App() {
                     </AlertDialog>
                     <button
                       type="button"
-                      className="grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground transition hover:bg-primary/90"
+                      className="grid h-12 w-12 place-items-center rounded-full bg-primary text-primary-foreground transition hover:bg-primary/90"
                       aria-label={stopwatch.running ? "Pause" : "Start"}
                       title={stopwatch.running ? "Pause" : "Start"}
                       onMouseDown={(event) => event.stopPropagation()}
@@ -282,9 +288,9 @@ export function App() {
                       }}
                     >
                       {stopwatch.running ? (
-                        <IconPlayerPauseFilled className="h-4 w-4" />
+                        <IconPlayerPauseFilled className="h-5 w-5" />
                       ) : (
-                        <IconPlayerPlayFilled className="h-4 w-4" />
+                        <IconPlayerPlayFilled className="h-5 w-5" />
                       )}
                     </button>
                     <button
