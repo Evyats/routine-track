@@ -1,0 +1,8 @@
+
+i want an option to edit the time of the Study Stopwatch and set it to whatever i choose (when paused).
+
+i want to have the stopwatch activated (play/pause) also when just clicking the element bg itself (the whole big circle). make the entire circular stopwatch container toggle play/pause on click and add a ripple effect to indicate the click. use a shadcn/ui button with asChild + ripple-style effect. keep the play pause buttons as is (even that we add alternative for play pause).
+
+* please stick to exactly what i am asking for, without changing anything further than that.
+
+

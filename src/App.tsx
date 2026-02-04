@@ -168,6 +168,9 @@ function useStopwatch() {
     setRunning(false);
     setElapsedMs(0);
   }, []);
+  const setTime = React.useCallback((ms: number) => {
+    setElapsedMs(Math.max(0, ms));
+  }, []);
 
   return {
     elapsedMs,
@@ -175,6 +178,7 @@ function useStopwatch() {
     start,
     pause,
     reset,
+    setTime,
   };
 }
 
@@ -182,6 +186,14 @@ export function App() {
   const [checked, setChecked] = React.useState<Record<string, boolean>>({});
   const stopwatch = useStopwatch();
   const [isDark, setIsDark] = React.useState(true);
+  const [editMinutes, setEditMinutes] = React.useState(0);
+  const [editSeconds, setEditSeconds] = React.useState(0);
+  const [rippleKey, setRippleKey] = React.useState(0);
+  const [rippleStyle, setRippleStyle] = React.useState<{
+    left: number;
+    top: number;
+    size: number;
+  } | null>(null);
 
   const handleToggle = React.useCallback((taskId: string) => {
     setChecked((prev) => ({ ...prev, [taskId]: !prev[taskId] }));
@@ -195,6 +207,43 @@ export function App() {
       root.classList.remove("dark");
     }
   }, [isDark]);
+
+  React.useEffect(() => {
+    if (stopwatch.running) {
+      return;
+    }
+    const totalSeconds = Math.floor(stopwatch.elapsedMs / 1000);
+    setEditMinutes(Math.floor(totalSeconds / 60));
+    setEditSeconds(totalSeconds % 60);
+  }, [stopwatch.elapsedMs, stopwatch.running]);
+
+  const handleCircleClick = React.useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height) * 2;
+      const left = event.clientX - rect.left - size / 2;
+      const top = event.clientY - rect.top - size / 2;
+      setRippleStyle({ left, top, size });
+      setRippleKey((prev) => prev + 1);
+      if (stopwatch.running) {
+        stopwatch.pause();
+      } else {
+        stopwatch.start();
+      }
+    },
+    [stopwatch],
+  );
+
+  const handleSetTime = React.useCallback(() => {
+    if (stopwatch.running) {
+      return;
+    }
+    const minutes = Number.isFinite(editMinutes) ? editMinutes : 0;
+    const seconds = Number.isFinite(editSeconds) ? editSeconds : 0;
+    const clampedSeconds = Math.min(59, Math.max(0, Math.floor(seconds)));
+    const clampedMinutes = Math.max(0, Math.floor(minutes));
+    stopwatch.setTime((clampedMinutes * 60 + clampedSeconds) * 1000);
+  }, [editMinutes, editSeconds, stopwatch]);
 
   return (
     <Routes>
@@ -237,7 +286,32 @@ export function App() {
               </header>
 
               <section className="flex items-center justify-center">
-                <div className="flex h-[22rem] w-[22rem] flex-col items-center justify-center rounded-full border border-border/70 bg-card/95 p-8 text-center text-card-foreground shadow-[0_30px_80px_-50px_rgba(15,23,42,0.25)] dark:bg-card sm:h-[26rem] sm:w-[26rem]">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={handleCircleClick}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      handleCircleClick(
+                        event as unknown as React.MouseEvent<HTMLDivElement>,
+                      );
+                    }
+                  }}
+                  className="relative flex h-[22rem] w-[22rem] flex-col items-center justify-center overflow-hidden rounded-full border border-border/70 bg-card/95 p-8 text-center text-card-foreground shadow-[0_30px_80px_-50px_rgba(15,23,42,0.25)] outline-none transition focus-visible:ring-2 focus-visible:ring-primary/40 dark:bg-card sm:h-[26rem] sm:w-[26rem]"
+                >
+                  {rippleStyle ? (
+                    <span
+                      key={rippleKey}
+                      className="ripple"
+                      style={{
+                        width: rippleStyle.size,
+                        height: rippleStyle.size,
+                        left: rippleStyle.left,
+                        top: rippleStyle.top,
+                      }}
+                    />
+                  ) : null}
                   <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">
                     Study Stopwatch
                   </p>
@@ -249,6 +323,47 @@ export function App() {
                     you step away. Reset at the end of the day to see your true
                     focused time.
                   </p>
+                  <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+                    <input
+                      type="number"
+                      min={0}
+                      value={editMinutes}
+                      onChange={(event) =>
+                        setEditMinutes(Number(event.target.value))
+                      }
+                      onClick={(event) => event.stopPropagation()}
+                      onFocus={(event) => event.stopPropagation()}
+                      disabled={stopwatch.running}
+                      className="w-16 rounded-md border border-border bg-background px-2 py-1 text-center text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                      aria-label="Minutes"
+                    />
+                    <span>:</span>
+                    <input
+                      type="number"
+                      min={0}
+                      max={59}
+                      value={editSeconds}
+                      onChange={(event) =>
+                        setEditSeconds(Number(event.target.value))
+                      }
+                      onClick={(event) => event.stopPropagation()}
+                      onFocus={(event) => event.stopPropagation()}
+                      disabled={stopwatch.running}
+                      className="w-16 rounded-md border border-border bg-background px-2 py-1 text-center text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                      aria-label="Seconds"
+                    />
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleSetTime();
+                      }}
+                      disabled={stopwatch.running}
+                      className="rounded-md border border-border px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground transition hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      Set
+                    </button>
+                  </div>
                   <div className="mt-4 flex items-center gap-3">
                     <button
                       type="button"
@@ -258,6 +373,7 @@ export function App() {
                       className="grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground transition hover:bg-primary/90"
                       aria-label={stopwatch.running ? "Pause" : "Start"}
                       title={stopwatch.running ? "Pause" : "Start"}
+                      onMouseDown={(event) => event.stopPropagation()}
                     >
                       {stopwatch.running ? <PauseIcon /> : <PlayIcon />}
                     </button>
@@ -267,6 +383,7 @@ export function App() {
                       className="grid h-10 w-10 place-items-center rounded-full border border-border text-muted-foreground transition hover:text-foreground"
                       aria-label="Reset"
                       title="Reset"
+                      onMouseDown={(event) => event.stopPropagation()}
                     >
                       <ResetIcon />
                     </button>
