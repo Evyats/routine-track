@@ -1,6 +1,18 @@
-# React + TypeScript + Vite + shadcn/ui
+# Routine Tracker
 
-This is a template for a new Vite project with React, TypeScript, and shadcn/ui.
+Minimal daily routine tracker with timers and a study stopwatch.
 
+Tech stack:
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS
+- shadcn/ui
+
+Hosted at: <YOUR_DOMAIN_HERE>
+
+## Run Locally
+```bash
 npm install
 npm run dev
+```
