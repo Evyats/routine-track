@@ -1,6 +1,10 @@
 
+default mode should be dark.
+
 Study Stopwatch - i want the component that holding everything related to the stop watch, including header and text and everything, to be in a circilar element, so it is basically a big circle. things within it are centered.
 
 start pause and reset buttons - i want icons instead of text.
+
+add some button that brings me to a new page which is the example component.
 
 * please stick to exactly what i am asking for, without changing anything further than that.

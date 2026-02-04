@@ -179,26 +179,26 @@ export function App() {
   }, [isDark]);
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#f3efe6_0%,_#f8f6f1_40%,_#efe7da_100%)] px-4 py-10 text-slate-900 dark:bg-[radial-gradient(circle_at_top,_#1f2430_0%,_#0f1115_55%,_#0a0b0f_100%)] dark:text-slate-100">
+    <main className="min-h-screen bg-background px-4 py-10 text-foreground">
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-8">
-        <header className="rounded-3xl border border-black/10 bg-white/70 p-6 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.5)] backdrop-blur dark:border-white/10 dark:bg-white/5">
+        <header className="rounded-3xl border border-border/70 bg-card/80 p-6 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.5)] backdrop-blur">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+              <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
                 Daily Routine
               </p>
-              <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">
+              <h1 className="text-3xl font-semibold text-foreground">
                 Focus Tracker
               </h1>
             </div>
             <div className="flex items-center gap-3">
-              <div className="rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-amber-100 dark:bg-amber-200 dark:text-slate-900">
+              <div className="rounded-full bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-primary-foreground">
                 Today
               </div>
               <button
                 type="button"
                 onClick={() => setIsDark((prev) => !prev)}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white/70 text-slate-700 transition hover:bg-white dark:border-white/10 dark:bg-white/10 dark:text-amber-100 dark:hover:bg-white/20"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-border/70 bg-card/80 text-foreground/80 transition hover:bg-card"
                 aria-label="Toggle dark mode"
                 title="Toggle dark mode"
               >
@@ -208,16 +208,16 @@ export function App() {
           </div>
         </header>
 
-        <section className="rounded-[2.5rem] border border-black/10 bg-slate-950 p-8 text-white shadow-[0_30px_80px_-50px_rgba(15,23,42,0.8)] dark:border-white/10 dark:bg-black/60">
+        <section className="rounded-[2.5rem] border border-border/70 bg-card p-8 text-card-foreground shadow-[0_30px_80px_-50px_rgba(15,23,42,0.25)]">
           <div className="flex flex-col gap-6">
             <div>
-              <p className="text-xs uppercase tracking-[0.4em] text-amber-200/80">
+              <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground">
                 Study Stopwatch
               </p>
-              <h2 className="mt-2 text-5xl font-semibold tracking-tight text-amber-50 sm:text-6xl">
+              <h2 className="mt-2 text-5xl font-semibold tracking-tight text-foreground sm:text-6xl">
                 {formatClock(stopwatch.elapsedMs, true)}
               </h2>
-              <p className="mt-2 max-w-xl text-sm text-amber-100/80">
+              <p className="mt-2 max-w-xl text-sm text-muted-foreground">
                 Start this when you begin your learning session. Pause when you
                 step away. Reset at the end of the day to see your true focused
                 time.
@@ -227,14 +227,14 @@ export function App() {
               <button
                 type="button"
                 onClick={stopwatch.running ? stopwatch.pause : stopwatch.start}
-                className="rounded-full bg-amber-200 px-6 py-2 text-sm font-semibold text-slate-900 transition hover:bg-amber-100"
+                className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
               >
                 {stopwatch.running ? "Pause" : "Start"}
               </button>
               <button
                 type="button"
                 onClick={stopwatch.reset}
-                className="rounded-full border border-amber-200/40 px-6 py-2 text-sm font-semibold text-amber-100 transition hover:border-amber-200/70 hover:text-white"
+                className="rounded-full border border-border px-6 py-2 text-sm font-semibold text-muted-foreground transition hover:text-foreground"
               >
                 Reset
               </button>
@@ -244,10 +244,10 @@ export function App() {
 
         <section className="grid gap-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+            <h2 className="text-xl font-semibold text-foreground">
               Today&apos;s Checklist
             </h2>
-            <span className="text-sm text-slate-500 dark:text-slate-400">
+            <span className="text-sm text-muted-foreground">
               {Object.values(checked).filter(Boolean).length} /{" "}
               {routineTasks.length} complete
             </span>
@@ -288,14 +288,14 @@ type TaskCardProps = {
 
 function TaskCard({ task, checked, onToggle }: TaskCardProps) {
   return (
-    <article className="rounded-2xl border border-black/5 bg-white/80 p-5 shadow-[0_15px_40px_-35px_rgba(15,23,42,0.6)] backdrop-blur dark:border-white/10 dark:bg-white/5">
+    <article className="rounded-2xl border border-border/70 bg-card/80 p-5 shadow-[0_15px_40px_-35px_rgba(15,23,42,0.35)] backdrop-blur">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <label className="flex items-center gap-3 text-base font-medium text-slate-900 dark:text-slate-100">
+        <label className="flex items-center gap-3 text-base font-medium text-foreground">
           <input
             type="checkbox"
             checked={checked}
             onChange={() => onToggle(task.id)}
-            className="h-5 w-5 rounded border-slate-300 text-amber-500 focus:ring-amber-300 dark:border-slate-600"
+            className="h-5 w-5 rounded border-border text-primary focus:ring-primary/40"
           />
           <span>{task.label}</span>
         </label>
@@ -308,33 +308,33 @@ function TimedTaskCard({ task, checked, onToggle }: TaskCardProps) {
   const timer = useCountdown(task.durationSeconds ?? 0, playChime);
 
   return (
-    <article className="rounded-2xl border border-black/5 bg-white/80 p-5 shadow-[0_15px_40px_-35px_rgba(15,23,42,0.6)] backdrop-blur dark:border-white/10 dark:bg-white/5">
+    <article className="rounded-2xl border border-border/70 bg-card/80 p-5 shadow-[0_15px_40px_-35px_rgba(15,23,42,0.35)] backdrop-blur">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <label className="flex items-center gap-3 text-base font-medium text-slate-900 dark:text-slate-100">
+        <label className="flex items-center gap-3 text-base font-medium text-foreground">
           <input
             type="checkbox"
             checked={checked}
             onChange={() => onToggle(task.id)}
-            className="h-5 w-5 rounded border-slate-300 text-amber-500 focus:ring-amber-300 dark:border-slate-600"
+            className="h-5 w-5 rounded border-border text-primary focus:ring-primary/40"
           />
           <span>{task.label}</span>
         </label>
 
         <div className="flex flex-wrap items-center gap-3">
-          <div className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 dark:bg-white/10 dark:text-slate-100">
+          <div className="rounded-full bg-muted px-4 py-2 text-sm font-semibold text-muted-foreground">
             {formatClock(timer.remainingMs)}
           </div>
           <button
             type="button"
             onClick={timer.running ? timer.pause : timer.start}
-            className="rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-amber-100 transition hover:bg-slate-800 dark:bg-amber-200 dark:text-slate-900 dark:hover:bg-amber-100"
+            className="rounded-full bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground transition hover:bg-primary/90"
           >
             {timer.running ? "Pause" : "Start"}
           </button>
           <button
             type="button"
             onClick={timer.reset}
-            className="rounded-full border border-slate-200 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 transition hover:border-slate-300 hover:text-slate-700 dark:border-white/20 dark:text-slate-200 dark:hover:border-white/40 dark:hover:text-white"
+            className="rounded-full border border-border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground transition hover:text-foreground"
           >
             Reset
           </button>
