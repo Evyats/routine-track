@@ -25,7 +25,7 @@ const routineTasks: RoutineTask[] = [
   },
   {
     id: "commit-github",
-    label: "Commit changes to codebase and send to GitHub",
+    label: "Commit changes to codebase and push to GitHub",
   },
 ];
 
@@ -55,20 +55,26 @@ function formatDateLabel(date = new Date()) {
 function playChime() {
   try {
     const context = new AudioContext();
-    const oscillator = context.createOscillator();
     const gain = context.createGain();
-
-    oscillator.type = "triangle";
-    oscillator.frequency.value = 880;
     gain.gain.value = 0.0001;
-
-    oscillator.connect(gain);
     gain.connect(context.destination);
 
-    oscillator.start();
-    gain.gain.exponentialRampToValueAtTime(0.25, context.currentTime + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 1.1);
-    oscillator.stop(context.currentTime + 1.15);
+    const oscA = context.createOscillator();
+    oscA.type = "sine";
+    oscA.frequency.value = 523.25;
+    oscA.connect(gain);
+
+    const oscB = context.createOscillator();
+    oscB.type = "sine";
+    oscB.frequency.value = 659.25;
+    oscB.connect(gain);
+
+    oscA.start();
+    oscB.start();
+    gain.gain.exponentialRampToValueAtTime(0.18, context.currentTime + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 1.8);
+    oscA.stop(context.currentTime + 1.85);
+    oscB.stop(context.currentTime + 1.85);
   } catch {
     // Silent fail if audio context isn't available.
   }
@@ -287,6 +293,9 @@ export function App() {
                         task={task}
                         checked={checked[task.id] ?? false}
                         onToggle={handleToggle}
+                        onComplete={(taskId) =>
+                          setChecked((prev) => ({ ...prev, [taskId]: true }))
+                        }
                       />
                     ) : (
                       <TaskCard
@@ -343,8 +352,20 @@ function TaskCard({ task, checked, onToggle }: TaskCardProps) {
   );
 }
 
-function TimedTaskCard({ task, checked, onToggle }: TaskCardProps) {
-  const timer = useCountdown(task.durationSeconds ?? 0, playChime);
+type TimedTaskCardProps = TaskCardProps & {
+  onComplete: (taskId: string) => void;
+};
+
+function TimedTaskCard({
+  task,
+  checked,
+  onToggle,
+  onComplete,
+}: TimedTaskCardProps) {
+  const timer = useCountdown(task.durationSeconds ?? 0, () => {
+    playChime();
+    onComplete(task.id);
+  });
 
   return (
     <article className="rounded-2xl border border-border/70 bg-card/95 p-5 shadow-[0_15px_40px_-35px_rgba(15,23,42,0.35)] backdrop-blur dark:bg-card/80">
