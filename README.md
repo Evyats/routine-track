@@ -11,6 +11,14 @@ Tech stack:
 
 Hosted at: <https://routine-track-alpha.vercel.app/>
 
+
+## Run Locally
+```bash
+npm install
+npm run dev
+```
+
+
 ## Screenshots
 <table>
   <tr>
@@ -26,9 +34,3 @@ Hosted at: <https://routine-track-alpha.vercel.app/>
     <td><img src="public/6.png" alt="Routine Tracker screenshot 6" width="360"></td>
   </tr>
 </table>
-
-## Run Locally
-```bash
-npm install
-npm run dev
-```
